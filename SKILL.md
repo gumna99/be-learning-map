@@ -4,7 +4,7 @@ description: |
   Cross-reference BE knowledge roadmap against speckit tasks to identify learning opportunities.
   Use when: learning what BE concepts a feature involves, getting concept explanations with real codebase examples,
   self-testing understanding, or calibrating matching accuracy after implementation.
-  Four sub-commands: map, explain, quiz, calibrate.
+  Five sub-commands: map, explain, quiz, calibrate, progress.
   Scope: Backend repos only (cream, tiramisu, cupcake, madeleine, puff, etc.). Not designed for frontend repos (souffle, pudding).
 ---
 
@@ -32,6 +32,7 @@ Identify which backend engineering concepts each feature involves, teach them us
 | `/be-learn explain {concept-id}` | Teach a concept using real codebase examples | During or after implementation |
 | `/be-learn quiz {concept-id}` | Self-test understanding with codebase questions | After reading an explanation |
 | `/be-learn calibrate` | Compare predictions vs actual code, improve matching | After implementation is complete |
+| `/be-learn progress` | View learning progress and mark concepts as learned | Anytime, especially after completing a feature |
 
 ---
 
@@ -143,6 +144,16 @@ Write `be-learning-map.json` to the feature's `specs/{feature}/` directory:
 
 This file is used later by `calibrate` to compare predictions vs reality.
 
+**Step 5 — Record encounters**
+
+For each **HIGH confidence** match, append an encounter to `~/.claude/skills/be-learning-map/references/progress.json`:
+- `feature`: the feature name
+- `date`: today (YYYY-MM-DD)
+- `via`: `"map"`
+- Skip if the same (feature, via) pair already exists for that concept
+- Do not change `status` if already `"learned"`
+- If `progress.json` doesn't exist, create it: `{ "version": "1.0", "concepts": {} }`
+
 ---
 
 ## Sub-command 2: explain {concept-id}
@@ -193,6 +204,14 @@ Depth: {concept.depth} | Pillar: {concept.pillar}
 {concept.resources — books, links}
 {concept.tools — relevant tools/frameworks in this project}
 ```
+
+**Step 4 — Record encounter**
+
+Append an encounter to `~/.claude/skills/be-learning-map/references/progress.json` for the explained concept:
+- `feature`: current feature name (from `be-learning-map.json` if available, else `"standalone"`)
+- `date`: today (YYYY-MM-DD)
+- `via`: `"explain"`
+- Same dedup and status rules as `map` Step 5
 
 **Teaching guidelines:**
 - Use zh-TW for explanations (matching the user's language preference)
@@ -339,6 +358,101 @@ If the user approves, update `be-roadmap.json` with the new keywords/triggers. A
 
 ---
 
+## Sub-command 5: progress
+
+View learning progress across all features and optionally mark concepts as learned.
+
+### Prerequisites
+
+- `be-roadmap.json` exists (for the full concept list)
+- `progress.json` is auto-created on first `map`/`explain` run; if missing, treat all concepts as untouched
+
+### Flow
+
+**Step 1 — Load data**
+
+1. Read `~/.claude/skills/be-learning-map/references/progress.json` (create empty if missing).
+2. Read `be-roadmap.json` for the full concept list.
+
+**Step 2 — Display summary**
+
+```
+BE Learning Progress
+================================================================
+
+Learned ({L}/28):
+  {concept-id}    {N} encounters ({feature-list}) | learned at {feature}
+  ...
+
+Touched but not learned ({T}/28):
+  {concept-id}    {N} encounters ({feature-list})
+  ...
+
+Untouched ({U}/28):
+  {concept-id}, {concept-id}, ...
+
+================================================================
+Progress: {L}/28 learned | {T}/28 touched | {U}/28 untouched
+
+{T} concepts touched but not marked as learned. Review now? (y/n)
+```
+
+**Step 3 — Review (if user says yes)**
+
+List touched-but-not-learned concepts with numbers. Ask the user to input which ones they've learned (comma-separated numbers, or `skip`).
+
+Criteria reminder: "Can you explain why it was used this way in your own words?"
+
+```
+  1. transaction-acid        — per-group withWriterTransaction
+  2. caching                 — Redis cross-service payload store
+  3. service-communication   — cupcake writes / madeleine reads
+
+Enter numbers of learned concepts (comma-separated), or 'skip':
+```
+
+**Step 4 — Update progress.json**
+
+For each selected concept:
+- Set `status` to `"learned"`
+- Write `learned_at`: `{ "feature": "{most recent encounter's feature}", "date": "today" }`
+
+Display updated counts as confirmation.
+
+### progress.json schema
+
+Stored at `~/.claude/skills/be-learning-map/references/progress.json`:
+
+```json
+{
+  "version": "1.0",
+  "concepts": {
+    "dependency-injection": {
+      "status": "learned",
+      "encounters": [
+        { "feature": "005-factor-settings-unit-conversion-ratio", "date": "2026-05-27", "via": "map" },
+        { "feature": "007-rma-bulk-create-custom-factor-upsert", "date": "2026-05-28", "via": "explain" }
+      ],
+      "learned_at": { "feature": "007-rma-bulk-create-custom-factor-upsert", "date": "2026-05-28" }
+    },
+    "transaction-acid": {
+      "status": "touched",
+      "encounters": [
+        { "feature": "007-rma-bulk-create-custom-factor-upsert", "date": "2026-05-28", "via": "map" }
+      ]
+    }
+  }
+}
+```
+
+Rules:
+- `status`: `"touched"` or `"learned"` only
+- `encounters`: deduplicated by (feature + via) pair
+- Concepts absent from JSON = untouched
+- `learned_at` only present when `status` is `"learned"`
+
+---
+
 ## Integration with speckit workflow
 
 This skill is **non-invasive** — it does NOT modify any speckit skills. Instead, use it as a companion:
@@ -357,6 +471,7 @@ Step 5: /speckit.tasks   → tasks.md              [Code Repo]
         /be-learn explain X → deep-dive          ← HERE
 Step 6: /speckit.implement                       [Code Repo]
         /be-learn calibrate                      ← HERE (post-implementation)
+        /be-learn progress                       ← HERE (review & mark learned)
 ```
 
 ### Multi-repo usage
