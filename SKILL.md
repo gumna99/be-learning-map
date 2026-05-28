@@ -5,11 +5,14 @@ description: |
   Use when: learning what BE concepts a feature involves, getting concept explanations with real codebase examples,
   self-testing understanding, or calibrating matching accuracy after implementation.
   Four sub-commands: map, explain, quiz, calibrate.
+  Scope: Backend repos only (cream, tiramisu, cupcake, madeleine, puff, etc.). Not designed for frontend repos (souffle, pudding).
 ---
 
 # BE Learning Map
 
 Identify which backend engineering concepts each feature involves, teach them using real codebase examples, and improve matching accuracy over time.
+
+**Scope**: Backend repos only. This skill's 26 concepts are all backend-focused (NestJS, TypeORM, PostgreSQL, etc.). Frontend RDs working in souffle/pudding should not use this skill — the matching results will be poor.
 
 ---
 
@@ -43,6 +46,8 @@ Scan `tasks.md` + `plan.md` against `be-roadmap.json` to predict which BE concep
 1. Locate the feature directory. If the user didn't specify, look for the most recent `specs/*/tasks.md`.
 2. Read `tasks.md` fully. Also read `plan.md` and `spec.md` if they exist (for additional context).
 3. Load `be-roadmap.json` from `~/.claude/skills/be-learning-map/references/`.
+4. **mint-tea artifacts** (optional but recommended): If `plan.md` references a mint-tea technical design path (e.g., `mint-tea/CarbonX/L2/005-.../`), attempt to read `sequence.plantuml` and `*-api.yaml` from that path. These reveal cross-service interactions (service-communication, async-communication, fault-tolerance) that tasks.md alone may not surface.
+5. **Incremental mode**: If `spec_update.diff` exists in the feature directory, this is an incremental change to an existing feature. In this case, focus matching on the **delta** — concepts introduced by the change, not the entire feature. Tag each matched concept as `"source": "new"` (introduced by this change) or `"source": "existing"` (already present in prior implementation) in the output.
 
 **Step 2 — 3-Layer Matching**
 
@@ -334,18 +339,62 @@ This skill is **non-invasive** — it does NOT modify any speckit skills. Instea
 
 ### Recommended workflow
 
+Follows the team's RD development workflow (see `carbonx-spec-hub/docs/rd-development-workflow.md`):
+
 ```
-/speckit.plan          → produces plan.md
-/speckit.tasks         → produces tasks.md
-/be-learn map          → produces be-learning-map.json (learning predictions)
-/be-learn explain X    → deep-dive on any concept before coding
-/speckit.implement     → actual implementation (with optional CLAUDE.md prompts)
-/be-learn calibrate    → post-implementation accuracy feedback
+Step 1: PM spec.md                              [Spec-Hub]
+Step 2: Architect sequence + API contracts       [mint-tea]
+Step 3: specify init . --ai claude --force       [Code Repo]
+Step 4: /speckit.plan    → plan.md               [Code Repo]
+Step 5: /speckit.tasks   → tasks.md              [Code Repo]
+        /be-learn map    → be-learning-map.json  ← HERE
+        /be-learn explain X → deep-dive          ← HERE
+Step 6: /speckit.implement                       [Code Repo]
+        /be-learn calibrate                      ← HERE (post-implementation)
 ```
+
+### Multi-repo usage
+
+When a feature spans multiple repos (e.g., cream BFF + madeleine Domain + souffle MFE):
+
+- Each backend RD runs `/be-learn map` independently **in their own repo**
+- The same feature will produce **different** learning maps per repo — this is expected:
+  - **BFF (cream)**: likely matches api-design, auth, request-lifecycle
+  - **Domain (madeleine)**: likely matches transaction-acid, query-execution, design-patterns
+- Frontend repos (souffle, pudding) should **not** use this skill — the 26 concepts are all backend-focused
+- Each repo's `specs/{feature}/be-learning-map.json` is independent
+
+### Incremental development
+
+When PM updates an existing spec and provides `spec_update.diff`:
+
+- RD runs `/speckit.plan --context specs/{feature}/spec_update.diff` for incremental planning
+- `/be-learn map` detects `spec_update.diff` in the feature directory and switches to **incremental mode**:
+  - Focuses on concepts introduced by the **change**, not the entire feature
+  - Tags each concept as `"source": "new"` or `"source": "existing"` in the output
+  - Only shows `new` concepts in the terminal report (existing ones are collapsed)
+- This prevents re-surfacing concepts the engineer already learned from the prior implementation
 
 ### Implement-time prompts (optional)
 
-If the user wants brief learning hints during `/speckit.implement`, add the CLAUDE.md snippet (see Task 3). This is opt-in and can be removed by deleting the snippet.
+If the user wants brief learning hints during `/speckit.implement`, add the CLAUDE.md snippet. This is opt-in and can be removed by deleting the snippet from CLAUDE.md:
+
+```markdown
+## BE Learning Prompts (opt-in)
+
+When implementing a feature via `/speckit.implement`, if a `be-learning-map.json` file exists
+in the current feature's `specs/{feature}/` directory, show a brief learning hint at the start
+of each task that matches a BE concept. Format:
+
+Learning hint: This task involves [concept name] — [one-sentence why from roadmap].
+Run `/be-learn explain {concept-id}` to learn more.
+
+Rules:
+- Only show for HIGH confidence matches (not medium/low)
+- One hint per task, max — do not interrupt the implementation flow
+- Never show hints if `be-learning-map.json` does not exist
+- To disable: delete this section from CLAUDE.md
+```
 
 ---
 
@@ -356,3 +405,4 @@ If the user wants brief learning hints during `/speckit.implement`, add the CLAU
 - Calibration is cumulative — each feature calibration improves future predictions
 - The skill never modifies speckit workflow files or other team skills
 - Senior engineers can skip this skill entirely — it's purely additive
+- **Backend only**: The 26 concepts cover NestJS, TypeORM, PostgreSQL, Bull, etc. Frontend concepts (React, MFE, CSS) are not included
