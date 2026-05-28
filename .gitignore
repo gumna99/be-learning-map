@@ -7,3 +7,6 @@
 
 # Output files (generated per-feature, not part of the skill)
 be-learning-map.json
+
+# Design documents (brainstorming artifacts, not part of the skill)
+docs/superpowers/

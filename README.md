@@ -67,7 +67,6 @@ be-learning-map/
 ├── references/
 │   ├── be-roadmap.json            # 41 BE concepts with matching rules
 │   └── progress.json              # Personal learning progress (auto-created)
-├── docs/superpowers/specs/        # Design documents
 └── README.md
 ```
 
