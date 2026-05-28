@@ -1,0 +1,1180 @@
+{
+  "version": "3.3",
+  "description": "BE Engineer Concept Roadmap — structured for keyword/pattern matching against tasks.md and source code",
+  "concepts": [
+    {
+      "id": "clean-code",
+      "name": "Clean Code",
+      "pillar": "基本功",
+      "depth": "基礎",
+      "why": "程式碼是給人讀的，不是只給機器執行",
+      "knowledge_points": [
+        "命名說出意圖",
+        "函式只做一件事（SRP 的日常體現）",
+        "DRY 消除知識重複",
+        "錯誤處理不汙染業務邏輯",
+        "測試即文件",
+        "Early return 減少巢狀"
+      ],
+      "keywords": [
+        "rename", "refactor", "extract", "simplify",
+        "private method", "helper", "util",
+        "early return", "guard clause"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "多個 early return（if ... return）",
+        "private method 被拆出",
+        "函式行數 < 30 行"
+      ],
+      "trigger_context": [
+        "新增 private method 且行數少於 30 行",
+        "函式有 3+ 個 early return guard clause"
+      ],
+      "tools": ["所有 .ts 檔案"],
+      "resources": ["Clean Code（Robert C. Martin）前三章"]
+    },
+    {
+      "id": "solid",
+      "name": "SOLID 原則",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "什麼樣的結構讓程式碼可以改動而不怕壞掉？",
+      "knowledge_points": [
+        "S 單一職責（SRP）：class/method 只負責一件事",
+        "O 開放封閉（OCP）：擴展新行為不修改既有程式碼",
+        "L Liskov 替換：子類別可以替代父類別",
+        "I 介面隔離：不依賴用不到的介面",
+        "D 依賴反轉（DIP）：依賴抽象不依賴實作"
+      ],
+      "keywords": [
+        "single responsibility", "SRP",
+        "open closed", "OCP", "extend", "without modifying",
+        "interface", "abstract",
+        "inject", "injectable", "provider"
+      ],
+      "file_patterns": [
+        "*.service.ts", "*.resolver.ts"
+      ],
+      "code_signatures": [
+        "@Injectable() class 只有一個核心 public method",
+        "在既有 switch/if chain 中加入新分支而不改舊邏輯",
+        "class 被拆分成多個小 service"
+      ],
+      "trigger_context": [
+        "新建一個 @Injectable service 且只做一件事 → SRP",
+        "在既有 fallback chain 中插入新邏輯不改舊路徑 → OCP",
+        "task 涉及拆分既有大 service 為多個小 service"
+      ],
+      "tools": ["NestJS @Injectable = DIP", "Middleware chain = OCP"],
+      "resources": ["Agile Software Development（Uncle Bob）", "refactoring.guru"]
+    },
+    {
+      "id": "design-patterns",
+      "name": "Design Patterns",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "對反覆出現的設計問題，前人命名好的解法",
+      "knowledge_points": [
+        "Repository Pattern：封裝資料存取邏輯",
+        "Strategy Pattern：同介面不同實作，runtime 切換",
+        "Observer Pattern：事件驅動的通知機制",
+        "Decorator Pattern：動態擴展物件行為",
+        "Builder Pattern：分步驟建立複雜物件",
+        "Factory Pattern：封裝物件建立邏輯"
+      ],
+      "keywords": [
+        "repository", "factory", "strategy", "observer",
+        "decorator", "builder", "pattern",
+        "createQueryBuilder", "QueryBuilder"
+      ],
+      "file_patterns": [
+        "*.repository.ts", "*.factory.ts", "*.strategy.ts",
+        "factory.ts", "*.builder.ts"
+      ],
+      "code_signatures": [
+        "@Injectable() class 名稱含 Repository",
+        "函式名稱含 create + 回傳 entity（Factory）",
+        "switch/if chain 根據類型選擇不同行為（Strategy）",
+        "planXxx() 純函式 + 外部 apply（Strategy/Command）"
+      ],
+      "trigger_context": [
+        "task 涉及 repository 操作",
+        "task 涉及 test factory（createXxx 函式）",
+        "task 涉及根據類型/case 選擇不同處理邏輯"
+      ],
+      "tools": ["Repository（TypeORM）", "Builder（QueryBuilder）", "Decorator（@Guard）", "Observer（EventEmitter）"],
+      "resources": ["refactoring.guru"]
+    },
+    {
+      "id": "testing-strategy",
+      "name": "測試策略 & 品質思維",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "如何確保程式碼正確？如何讓測試成為重構的安全網而不是負擔？",
+      "knowledge_points": [
+        "測試金字塔：Unit（多）→ Integration（中）→ E2E（少）",
+        "Unit Test 外部依賴全 mock",
+        "E2E 啟動真實 app + 真實 DB",
+        "測試命名：當 X 條件，做 Y 操作，應得到 Z 結果",
+        "ESLint/Prettier/Husky 讓壞程式碼在進 repo 前被攔截",
+        "TDD：先寫測試（RED）→ 實作（GREEN）→ 重構（REFACTOR）",
+        "回歸測試：確保新功能不破壞既有功能"
+      ],
+      "keywords": [
+        "test", "spec", "e2e", "unit test", "mock", "jest",
+        "describe", "it", "expect", "beforeAll", "afterAll",
+        "TDD", "RED", "GREEN", "regression",
+        "lint", "eslint", "prettier", "format",
+        "factory", "fixture", "seed"
+      ],
+      "file_patterns": [
+        "*.spec.ts", "*.e2e.spec.ts", "test/", "factory.ts",
+        "jest-group*.json", "mock.ts"
+      ],
+      "code_signatures": [
+        "describe() + it() 結構",
+        "jest.fn() / jest.mock()",
+        "getTestDBImport()",
+        "clearAllDataInDB()",
+        "createXxx() factory 函式"
+      ],
+      "trigger_context": [
+        "task 包含寫測試",
+        "task 包含 TDD（先寫測試再實作）",
+        "task 包含回歸驗證",
+        "task 包含 lint/format 檢查",
+        "task 包含 jest-group 設定"
+      ],
+      "tools": ["Jest 28", "@nestjs/testing", "Supertest", "ESLint", "Prettier"],
+      "resources": ["Martin Fowler Test Pyramid", "Jest 官方文件"]
+    },
+    {
+      "id": "version-control",
+      "name": "版本控制思維",
+      "pillar": "基本功",
+      "depth": "基礎",
+      "why": "如何在多人協作下安全地演化程式碼？",
+      "knowledge_points": [
+        "分支策略（Feature Branch / Trunk-based）",
+        "rebase 重寫歷史 vs merge 記錄合併事實",
+        "有意義的 commit message",
+        "reflog 作為安全網"
+      ],
+      "keywords": [
+        "branch", "merge", "rebase", "commit", "git",
+        "feature branch", "MR", "merge request", "PR"
+      ],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": [
+        "task 涉及建立 feature branch",
+        "task 涉及 MR/PR 流程"
+      ],
+      "tools": ["Git + GitLab CI/CD"],
+      "resources": ["Pro Git book"]
+    },
+    {
+      "id": "type-system",
+      "name": "型別系統",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "如何在執行前就證明程式碼的正確性？",
+      "knowledge_points": [
+        "型別是值的集合（集合論視角）",
+        "靜態型別 = compile-time 正確性保證",
+        "Union / Intersection / Generic / Utility Types",
+        "Discriminated Union 讓狀態機型別安全",
+        "消滅 any = 消滅潛在 runtime error"
+      ],
+      "keywords": [
+        "interface", "type", "enum", "generic",
+        "union", "intersection", "utility",
+        "Partial", "Pick", "Omit", "Record",
+        "as", "extends", "keyof"
+      ],
+      "file_patterns": [
+        "*.interface.ts", "*.interfaces.ts", "*.dto.ts",
+        "*.enum.ts", "*.type.ts"
+      ],
+      "code_signatures": [
+        "export interface Xxx",
+        "export type Xxx =",
+        "export enum Xxx",
+        "as UnitEnum（type assertion）"
+      ],
+      "trigger_context": [
+        "task 涉及新增 interface 或 type 定義",
+        "task 涉及新增 enum"
+      ],
+      "tools": ["TypeScript 5.x"],
+      "resources": ["TypeScript Handbook"]
+    },
+    {
+      "id": "programming-paradigms",
+      "name": "程式設計範式",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "用什麼思維模型組織程式碼？",
+      "knowledge_points": [
+        "OOP：用物件封裝狀態和行為，適合有生命週期的領域模型",
+        "FP：純函式 + 不可變資料，避免 side effect，適合資料轉換流程",
+        "兩者不衝突，判斷何時用哪個才是重點"
+      ],
+      "keywords": [
+        "class", "this", "constructor",
+        "map", "filter", "reduce", "pipe",
+        "pure function", "immutable", "lodash",
+        "_.uniqBy", "_.groupBy", "_.mapValues"
+      ],
+      "file_patterns": [
+        "utils/*.ts"
+      ],
+      "code_signatures": [
+        "export function xxxXxx()（純函式，無 class）",
+        "@Injectable() class（OOP service）",
+        "array.map().filter()（FP chain）",
+        "new Map() + for loop（imperative）"
+      ],
+      "trigger_context": [
+        "task 涉及純函式（不在 class 內、無 this）和 @Injectable class 同時出現",
+        "task 涉及 lodash 資料轉換"
+      ],
+      "tools": ["OOP → NestJS Service/Entity", "FP → lodash/Array methods", "FRP → RxJS"],
+      "resources": ["Mostly Adequate Guide to FP"]
+    },
+    {
+      "id": "dependency-injection",
+      "name": "依賴注入 & 控制反轉",
+      "pillar": "基本功",
+      "depth": "核心",
+      "why": "如何讓模組可以獨立測試和替換？",
+      "knowledge_points": [
+        "IoC：不是你呼叫 framework，是 framework 呼叫你",
+        "DI 是 IoC 的實作：依賴從外部注入而不是內部 new",
+        "好處：依賴可以被替換（mock），模組可以獨立測試",
+        "NestJS 用 DI container 自動解決 DIP"
+      ],
+      "keywords": [
+        "injectable", "inject", "module", "provider",
+        "imports", "exports", "constructor",
+        "useValue", "useClass", "useFactory",
+        "mock", "provide"
+      ],
+      "file_patterns": [
+        "*.module.ts", "*.service.ts"
+      ],
+      "code_signatures": [
+        "@Injectable()",
+        "@Module({ imports: [...], providers: [...], exports: [...] })",
+        "constructor(private readonly xxx: XxxService)",
+        "{ provide: XxxService, useValue: mockXxx }"
+      ],
+      "trigger_context": [
+        "task 涉及建立新的 @Injectable service",
+        "task 涉及在 module 中註冊 provider",
+        "task 涉及 mock service for testing"
+      ],
+      "tools": ["NestJS @Injectable / @Inject / Module"],
+      "resources": ["NestJS Fundamentals > Dependency Injection", "Martin Fowler — Inversion of Control Containers"]
+    },
+    {
+      "id": "execution-model",
+      "name": "執行模型 & 並發",
+      "pillar": "計算",
+      "depth": "核心",
+      "why": "程式如何在有限 CPU 上「同時」做很多事？",
+      "knowledge_points": [
+        "Thread vs Process vs Event Loop",
+        "Non-blocking I/O 的本質",
+        "單執行緒 Node.js 能高並發的原因",
+        "callback → Promise → async/await 是同一個問題的三代解法"
+      ],
+      "keywords": [
+        "async", "await", "promise", "Promise.all",
+        "event loop", "non-blocking", "concurrent",
+        "setTimeout", "setInterval", "callback"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "Promise.all([...])（平行執行多個 async）",
+        "await 連續呼叫（序列執行）",
+        "CPU-intensive 操作在 main thread"
+      ],
+      "trigger_context": [
+        "task 涉及 Promise.all 平行化多個查詢",
+        "task 涉及效能優化（序列改平行）"
+      ],
+      "tools": ["Node.js Event Loop", "async/await", "Promise"],
+      "resources": ["Philip Roberts JSConf 演講"]
+    },
+    {
+      "id": "memory-model",
+      "name": "記憶體模型 & 資源管理",
+      "pillar": "計算",
+      "depth": "核心",
+      "why": "記憶體和連線資源是怎麼被管理的？什麼情況會悄悄耗盡？",
+      "knowledge_points": [
+        "Memory Leak：closure 和 EventEmitter 沒有 removeListener",
+        "GC Stop-the-World 暫停解釋 API 偶發高延遲",
+        "Connection Pool 太小 → 等待，太大 → DB 過載",
+        "Stream 用完必須關閉"
+      ],
+      "keywords": [
+        "memory", "leak", "pool", "connection pool",
+        "stream", "buffer", "heap", "GC",
+        "removeListener", "close", "destroy"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "connection pool 設定",
+        "stream.pipe() 未搭配 error handler",
+        "EventEmitter 無 removeListener"
+      ],
+      "trigger_context": [
+        "task 涉及 stream 處理",
+        "task 涉及 connection pool 設定"
+      ],
+      "tools": ["TypeORM connection pool", "Node.js --inspect", "clinic.js"],
+      "resources": ["Node.js Memory Management", "clinic.js"]
+    },
+    {
+      "id": "algorithm-complexity",
+      "name": "演算法複雜度",
+      "pillar": "計算",
+      "depth": "核心",
+      "why": "資料量增加時，程式的資源消耗如何增長？",
+      "knowledge_points": [
+        "Big O 分析（時間 & 空間）",
+        "O(1) O(log n) O(n) O(n log n) O(n²)",
+        "Hash Map 查找 O(1) vs 陣列遍歷 O(n)",
+        "N+1 查詢問題"
+      ],
+      "keywords": [
+        "O(n)", "complexity", "performance",
+        "N+1", "for loop", "nested loop",
+        "Map", "Set", "HashMap", "index"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "new Map() 取代重複 array.find()（O(n) → O(1)）",
+        "for 迴圈內有 DB query（N+1）",
+        "先 query 再用 Map 做 lookup"
+      ],
+      "trigger_context": [
+        "task 涉及「先查一次，用 Map 做 lookup」的模式（避免 N+1）",
+        "task 描述提到避免 N 次 query"
+      ],
+      "tools": ["任何語言都適用"],
+      "resources": ["Neetcode.io"]
+    },
+    {
+      "id": "numerical-precision",
+      "name": "數值精度",
+      "pillar": "計算",
+      "depth": "基礎",
+      "why": "電腦怎麼表示小數？為什麼 0.1 + 0.2 ≠ 0.3？",
+      "knowledge_points": [
+        "IEEE 754 浮點數是近似值不是精確值",
+        "碳排計算要求精確所以必須用任意精度算術",
+        "何時需要 big.js vs 原生 number"
+      ],
+      "keywords": [
+        "big.js", "Big", "precision", "decimal",
+        "unitConvert", "Number(", "parseFloat",
+        "toFixed", "toString"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "new Big(value)",
+        "unitConvert.unitConvert(",
+        "Number(stringValue)（string → number 轉換）",
+        "type: string（DB 存 decimal 為 string）"
+      ],
+      "trigger_context": [
+        "task 涉及碳排計算或單位換算",
+        "task 涉及 big.js 或 unitConvert"
+      ],
+      "tools": ["big.js"],
+      "resources": ["IEEE 754 Wikipedia", "big.js README"]
+    },
+    {
+      "id": "network-layers",
+      "name": "網路分層模型",
+      "pillar": "通訊",
+      "depth": "基礎",
+      "why": "複雜的通訊問題如何被拆解成獨立的層？",
+      "knowledge_points": [
+        "OSI 七層 vs TCP/IP 四層",
+        "Transport 層：TCP 可靠傳輸 + port",
+        "Application 層：HTTP/HTTPS/TLS/DNS",
+        "K8s Service DNS"
+      ],
+      "keywords": [
+        "DNS", "TCP", "HTTP", "HTTPS", "TLS",
+        "port", "ENOTFOUND", "connection refused"
+      ],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": [
+        "task 涉及 K8s service 間通訊",
+        "task 涉及 DNS 設定或除錯"
+      ],
+      "tools": ["HTTP/HTTPS", "TLS", "DNS", "K8s Service DNS"],
+      "resources": ["MDN HTTP 文件", "Julia Evans 網路 zines"]
+    },
+    {
+      "id": "api-design",
+      "name": "API 設計哲學",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "如何設計一個好用、可演化的介面？",
+      "knowledge_points": [
+        "REST 是一組約束（stateless、uniform interface、resource-based）",
+        "stateless 最重要因為它讓 scaling 變容易",
+        "版本控制策略（URI versioning /v1/）",
+        "GET 冪等、POST 非冪等、PATCH 部分更新"
+      ],
+      "keywords": [
+        "endpoint", "REST", "API", "GET", "POST", "PUT", "PATCH", "DELETE",
+        "controller", "route", "versioning", "/v1/",
+        "query param", "path param", "body"
+      ],
+      "file_patterns": [
+        "*.controller.ts"
+      ],
+      "code_signatures": [
+        "@Controller()",
+        "@Get() / @Post() / @Patch() / @Delete()",
+        "@Query() / @Param() / @Body()"
+      ],
+      "trigger_context": [
+        "task 涉及新增或修改 controller endpoint",
+        "task 涉及 API 設計決策"
+      ],
+      "tools": ["REST API（NestJS Controller）", "URI Versioning /v1/"],
+      "resources": ["restfulapi.net"]
+    },
+    {
+      "id": "auth",
+      "name": "身份驗證 & 授權",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "你是誰（AuthN）？你能做什麼（AuthZ）？",
+      "knowledge_points": [
+        "AuthN vs AuthZ 是兩個不同問題",
+        "JWT 把狀態編碼進 token（無狀態，scalable）",
+        "OAuth 2.0 是授權框架不是認證"
+      ],
+      "keywords": [
+        "JWT", "token", "auth", "guard", "permission",
+        "PermissionGuard", "extractJwt", "bearer",
+        "bcrypt", "OAuth"
+      ],
+      "file_patterns": [
+        "*.guard.ts", "auth*"
+      ],
+      "code_signatures": [
+        "@UseGuards(PermissionGuard)",
+        "extractJwtFromHeader(",
+        "canActivate("
+      ],
+      "trigger_context": [
+        "task 涉及新增 Guard 或權限檢查",
+        "task 涉及 JWT 驗證邏輯"
+      ],
+      "tools": ["JWT（Tiramisu 服務）"],
+      "resources": ["jwt.io", "OWASP Password Storage Cheat Sheet"]
+    },
+    {
+      "id": "request-lifecycle",
+      "name": "請求生命週期 & 中介層",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "一個 HTTP request 進來，經過了哪些關卡？",
+      "knowledge_points": [
+        "Middleware → Guard → Interceptor → Pipe → Controller → Interceptor（return）→ Exception Filter",
+        "每一層各司其職",
+        "Chain of Responsibility Pattern 的體現"
+      ],
+      "keywords": [
+        "middleware", "guard", "interceptor", "pipe",
+        "filter", "ValidationPipe", "ExceptionFilter",
+        "useGlobalPipes", "useGlobalFilters"
+      ],
+      "file_patterns": [
+        "*.middleware.ts", "*.guard.ts", "*.interceptor.ts",
+        "*.pipe.ts", "*.filter.ts"
+      ],
+      "code_signatures": [
+        "app.useGlobalPipes(new ValidationPipe(",
+        "app.useGlobalFilters(new ApiExceptionFilter())",
+        "@UseGuards(",
+        "@UseInterceptors("
+      ],
+      "trigger_context": [
+        "task 涉及 E2E test setup（因為要設定 pipe/filter）",
+        "task 涉及新增 middleware/guard/interceptor"
+      ],
+      "tools": ["NestJS Middleware / Guard / Interceptor / Pipe / Filter"],
+      "resources": ["NestJS 官方文件 Middleware 到 Exception Filters"]
+    },
+    {
+      "id": "web-security",
+      "name": "Web 安全模型",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "攻擊者怎麼思考？你怎麼防禦？",
+      "knowledge_points": [
+        "OWASP Top 10（最常見漏洞類型）",
+        "CORS 保護跨域",
+        "輸入驗證防 injection",
+        "whitelist: true 的重要性"
+      ],
+      "keywords": [
+        "OWASP", "XSS", "injection", "CORS",
+        "sanitize", "whitelist", "class-validator",
+        "ValidationPipe"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "whitelist: true（ValidationPipe 設定）",
+        "class-validator decorators（@IsString, @IsNumber 等）"
+      ],
+      "trigger_context": [
+        "task 涉及新增 DTO 驗證",
+        "task 涉及 input validation"
+      ],
+      "tools": ["class-validator", "sanitize-html", "CORS"],
+      "resources": ["OWASP Top 10"]
+    },
+    {
+      "id": "async-communication",
+      "name": "非同步通訊模式",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "同步呼叫讓服務耦合，非同步如何解耦？",
+      "knowledge_points": [
+        "Job Queue（至少一次執行，適合背景任務）vs Event Streaming",
+        "Worker 模式",
+        "Workflow 引擎解決長時間跨步驟可靠性",
+        "at-least-once vs exactly-once delivery"
+      ],
+      "keywords": [
+        "bull", "bullmq", "queue", "job",
+        "consumer", "producer", "processor",
+        "kafka", "temporal", "workflow", "worker",
+        "event", "emit", "on("
+      ],
+      "file_patterns": [
+        "*.job-consumer.ts", "*.job-producer.ts",
+        "*.processor.ts", "*.consumer.ts",
+        "job.enum.ts"
+      ],
+      "code_signatures": [
+        "@Process()",
+        "@OnQueueCompleted()",
+        "QueueName.XXX",
+        "this.queue.add("
+      ],
+      "trigger_context": [
+        "task 涉及 Bull queue job",
+        "task 涉及 Temporal workflow"
+      ],
+      "tools": ["Bull/BullMQ", "Kafka", "Temporal"],
+      "resources": ["Bull 文件", "Temporal 官方文件"]
+    },
+    {
+      "id": "fault-tolerance",
+      "name": "容錯 & 韌性",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "局部失敗是分散式系統的常態，如何優雅地失敗？",
+      "knowledge_points": [
+        "Circuit Breaker 防雪崩",
+        "Retry with exponential backoff",
+        "Timeout 防資源耗盡",
+        "Graceful Shutdown"
+      ],
+      "keywords": [
+        "retry", "timeout", "circuit breaker",
+        "backoff", "graceful shutdown",
+        "axios", "interceptor"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "axios timeout 設定",
+        "retry 邏輯",
+        "try/catch + fallback"
+      ],
+      "trigger_context": [
+        "task 涉及呼叫外部服務（Tiramisu/Cupcake/Puff）",
+        "task 涉及 HTTP client 設定"
+      ],
+      "tools": ["axios interceptors", "Temporal retry", "K8s terminationGracePeriodSeconds"],
+      "resources": ["Release It!", "Martin Fowler CircuitBreaker"]
+    },
+    {
+      "id": "service-communication",
+      "name": "服務間通訊架構",
+      "pillar": "通訊",
+      "depth": "進階",
+      "why": "多個服務如何有效率且可靠地合作？",
+      "knowledge_points": [
+        "API Gateway 統一入口",
+        "Microservices 的服務邊界怎麼劃",
+        "Shared DB 的陷阱",
+        "12-Factor App 的設計原則"
+      ],
+      "keywords": [
+        "microservice", "gateway", "proxy",
+        "tiramisu", "cupcake", "madeleine", "puff", "cream",
+        "shared_db", "shared-db", "cross-service",
+        "contract", "mint-tea", "spec-hub"
+      ],
+      "file_patterns": [
+        "*.module.ts"
+      ],
+      "code_signatures": [
+        "SharedDbModule / SharedDbService",
+        "TiramisuService / CupcakeService / PuffService",
+        "@InjectDataSource(SHARED_DB_CONNECTION_NAME)"
+      ],
+      "trigger_context": [
+        "task 涉及讀寫 shared_db",
+        "task 涉及跨服務 API 契約同步",
+        "task 涉及多 repo 同步（spec-hub + mint-tea + madeleine）"
+      ],
+      "tools": ["Cream Proxy（API Gateway）", "各微服務"],
+      "resources": ["12factor.net", "Microservices.io"]
+    },
+    {
+      "id": "observability",
+      "name": "可觀測性",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "系統出問題時，你怎麼知道哪裡壞了？",
+      "knowledge_points": [
+        "Logging（發生了什麼）、Metrics（系統現在狀態）、Tracing（請求經過哪些服務）",
+        "結構化日誌讓機器可查詢",
+        "Trace ID 串接跨服務的請求"
+      ],
+      "keywords": [
+        "logger", "Logger", "log", "winston",
+        "trace", "traceId", "metrics",
+        "this.logger.error(", "this.logger.warn(", "this.logger.debug("
+      ],
+      "file_patterns": [
+        "*.middleware.ts"
+      ],
+      "code_signatures": [
+        "private readonly logger: Logger = new Logger(ClassName.name)",
+        "this.logger.error(`xxx failed: ${error.message}`, error.stack)",
+        "this.logger.warn(",
+        "this.logger.debug("
+      ],
+      "trigger_context": [
+        "task 涉及新增 logger 呼叫",
+        "task 涉及 error handling with logging"
+      ],
+      "tools": ["Winston", "@google-cloud/logging-winston", "GCP Logging"],
+      "resources": ["Google Cloud Logging 文件"]
+    },
+    {
+      "id": "api-contract",
+      "name": "API Contract & 向後相容性",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "API 設計好之後，如何在不破壞現有 consumer 的前提下安全地演化它？",
+      "knowledge_points": [
+        "Breaking change 的定義：刪欄位、改型別、改語意",
+        "加欄位通常不是 breaking",
+        "URI versioning（/v1/ /v2/）",
+        "Consumer-driven contract testing"
+      ],
+      "keywords": [
+        "breaking change", "backward compatible", "versioning",
+        "contract", "api.yaml", "OpenAPI",
+        "DTO 不變", "response 結構不變",
+        "mint-tea", "spec-hub"
+      ],
+      "file_patterns": [
+        "contracts/*.yaml", "*-api.yaml"
+      ],
+      "code_signatures": [
+        "x-implementation-status: NEED_MODIFY（行為改但 DTO 不變）",
+        "endpoint 邏輯改變但 response schema 維持"
+      ],
+      "trigger_context": [
+        "task 涉及修改 endpoint 行為但不改 DTO",
+        "task 涉及 API contract 同步（mint-tea/spec-hub PR）",
+        "task 涉及版本控制決策（/v1/ vs /v2/）"
+      ],
+      "tools": ["NestJS URI Versioning", "各微服務間 API 契約"],
+      "resources": ["Stripe API Versioning"]
+    },
+    {
+      "id": "rate-limiting",
+      "name": "Rate Limiting",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "如何防止 client 在短時間內打爆 server？",
+      "knowledge_points": [
+        "Token Bucket vs Leaky Bucket",
+        "429 Too Many Requests",
+        "Retry-After header"
+      ],
+      "keywords": ["rate limit", "throttle", "429", "Retry-After"],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及 rate limiting 設定"],
+      "tools": ["Cream API Gateway"],
+      "resources": ["Cloudflare Blog", "NestJS Throttler"]
+    },
+    {
+      "id": "realtime",
+      "name": "即時通訊模型",
+      "pillar": "通訊",
+      "depth": "核心",
+      "why": "當 HTTP request-response 不夠，如何讓 server 主動推送？",
+      "knowledge_points": [
+        "Long Polling / SSE / WebSocket 三者差異",
+        "雙向通訊選 WebSocket，單向推送選 SSE"
+      ],
+      "keywords": ["websocket", "SSE", "long polling", "socket", "realtime", "push"],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及即時更新或推播"],
+      "tools": [],
+      "resources": ["MDN WebSocket / SSE"]
+    },
+    {
+      "id": "event-driven",
+      "name": "事件驅動架構",
+      "pillar": "通訊",
+      "depth": "進階",
+      "why": "當業務流程很長、跨越多個服務，如何保持解耦又追蹤狀態？",
+      "knowledge_points": [
+        "Event Sourcing：存「發生了什麼」不是「現在狀態」",
+        "CQRS：讀模型和寫模型分開",
+        "狀態是事件的累積"
+      ],
+      "keywords": ["event sourcing", "CQRS", "event", "emit", "audit", "history"],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及稽核紀錄或歷史狀態追溯"],
+      "tools": [],
+      "resources": ["Martin Fowler Event Sourcing"]
+    },
+    {
+      "id": "domain-modeling",
+      "name": "領域建模（DDD 戰術模式）",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "業務知識如何轉換成程式碼結構？",
+      "knowledge_points": [
+        "Entity：有唯一 ID、有生命週期",
+        "Value Object：用值定義、無 ID、不可變",
+        "Aggregate：一組相關 Entity + VO 的一致性邊界",
+        "Domain Service：跨 Entity 的業務邏輯"
+      ],
+      "keywords": [
+        "entity", "value object", "VO", "aggregate",
+        "domain", "model", "interface",
+        "snapshot", "context"
+      ],
+      "file_patterns": [
+        "*.entity.ts", "*.interface.ts", "*.interfaces.ts"
+      ],
+      "code_signatures": [
+        "export interface XxxSnapshot（Value Object）",
+        "export interface XxxContext（bounded context input）",
+        "@Entity() class",
+        "interface 只有 value fields 沒有 id（VO 特徵）"
+      ],
+      "trigger_context": [
+        "task 涉及新增 interface 且只有 value fields（無 id）→ VO",
+        "task 涉及新增 XxxContext / XxxInput 類型的 interface"
+      ],
+      "tools": ["TypeORM Entity", "專案 79 個 Entity"],
+      "resources": ["Domain-Driven Design Distilled"]
+    },
+    {
+      "id": "relational-model",
+      "name": "關聯模型 & 正規化",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "如何用最少的重複表達最多的資訊？",
+      "knowledge_points": [
+        "關聯模型：消除重複，用外鍵把事實表達一次",
+        "正規化（1NF → 3NF）",
+        "反正規化是刻意的效能取捨",
+        "ORM 是關聯模型的物件導向抽象層",
+        "Shared DB / FDW 架構"
+      ],
+      "keywords": [
+        "entity", "relation", "join", "foreign key",
+        "oneToMany", "manyToOne", "manyToMany",
+        "shared_db", "shared-db", "FDW",
+        "innerJoin", "leftJoin"
+      ],
+      "file_patterns": [
+        "*.entity.ts", "*.repository.ts",
+        "shared-db/"
+      ],
+      "code_signatures": [
+        "@ManyToOne / @OneToMany / @JoinColumn",
+        ".innerJoin( / .leftJoin(",
+        "@InjectDataSource(SHARED_DB_CONNECTION_NAME)（跨 DB 讀取）"
+      ],
+      "trigger_context": [
+        "task 涉及跨 shared_db 讀取",
+        "task 涉及 entity relation 設計",
+        "task 涉及 join 查詢"
+      ],
+      "tools": ["PostgreSQL", "TypeORM Entity / Relations"],
+      "resources": ["Database Design for Mere Mortals", "Use The Index Luke"]
+    },
+    {
+      "id": "query-execution",
+      "name": "查詢執行 & 索引",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "DB 怎麼找到你要的資料？為什麼有時候快有時候慢？",
+      "knowledge_points": [
+        "B-tree index 是用空間換時間",
+        "Query planner 用統計資訊決定執行計畫",
+        "EXPLAIN ANALYZE",
+        "N+1 是 ORM 最常見的效能陷阱"
+      ],
+      "keywords": [
+        "QueryBuilder", "createQueryBuilder",
+        "select", "where", "andWhere", "orderBy",
+        "index", "EXPLAIN", "ANALYZE",
+        "N+1", "getRawMany", "getManyAndCount"
+      ],
+      "file_patterns": [
+        "*.repository.ts"
+      ],
+      "code_signatures": [
+        ".createQueryBuilder('alias')",
+        ".select([...]) 顯式選欄位",
+        ".andWhere('xxx IS NOT NULL')",
+        ".distinct(true)",
+        "new Map() 避免 N+1（先查再 Map lookup）"
+      ],
+      "trigger_context": [
+        "task 涉及新增 repository method with QueryBuilder",
+        "task 描述提到「避免 N 次 query」或效能優化"
+      ],
+      "tools": ["PostgreSQL EXPLAIN ANALYZE", "TypeORM QueryBuilder"],
+      "resources": ["Use The Index Luke"]
+    },
+    {
+      "id": "transaction-acid",
+      "name": "交易 & ACID",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "多個操作如何保證「要嘛全做，要嘛全不做」？",
+      "knowledge_points": [
+        "ACID：Atomicity 原子性、Consistency 一致性、Isolation 隔離性、Durability 持久性",
+        "Isolation Level 是一致性 vs 效能的旋鈕",
+        "Deadlock 兩個 Transaction 互相等對方的 lock"
+      ],
+      "keywords": [
+        "transaction", "queryRunner", "commit", "rollback",
+        "DbTransaction", "tx:", "startTransaction",
+        "bulkInsert", "bulkUpdate", "bulkDelete",
+        "atomicity", "isolation"
+      ],
+      "file_patterns": [
+        "*.service.ts"
+      ],
+      "code_signatures": [
+        "queryRunner.startTransaction()",
+        "queryRunner.commitTransaction()",
+        "queryRunner.rollbackTransaction()",
+        "tx: DbTransaction",
+        "bulkInsert + bulkUpdate 在同一個 tx 內"
+      ],
+      "trigger_context": [
+        "task 涉及多表寫入",
+        "task 涉及 DbTransaction / queryRunner",
+        "task 涉及 reconcile pattern（SELECT → plan → bulk write in tx）"
+      ],
+      "tools": ["PostgreSQL Transaction", "TypeORM Transaction / QueryRunner"],
+      "resources": ["Designing Data-Intensive Applications Ch.7"]
+    },
+    {
+      "id": "cross-service-consistency",
+      "name": "跨服務資料一致性",
+      "pillar": "狀態",
+      "depth": "進階",
+      "why": "一個業務操作需要跨越多個微服務的 DB，ACID 不夠用了",
+      "knowledge_points": [
+        "分散式系統沒有全域 Transaction",
+        "Saga Pattern：本地 Transaction + 補償操作",
+        "Choreography vs Orchestration"
+      ],
+      "keywords": [
+        "saga", "compensate", "temporal workflow",
+        "cross-service", "distributed transaction"
+      ],
+      "file_patterns": [],
+      "code_signatures": [
+        "Temporal workflow 編排多步驟"
+      ],
+      "trigger_context": [
+        "task 涉及跨服務操作（Madeleine + Cupcake 同時寫入）"
+      ],
+      "tools": ["Temporal.io"],
+      "resources": ["DDIA Ch.9", "Temporal Saga"]
+    },
+    {
+      "id": "idempotency",
+      "name": "冪等性設計",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "同一個操作被執行兩次，結果應該和執行一次相同",
+      "knowledge_points": [
+        "冪等性：f(f(x)) = f(x)",
+        "為什麼需要：網路重試、Queue retry、用戶重複點擊",
+        "Idempotency Key：客戶端帶唯一 key，server 用它去重",
+        "DB upsert（ON CONFLICT DO NOTHING）",
+        "Reconcile pattern：SELECT existing → compute desired → apply diff"
+      ],
+      "keywords": [
+        "idempotent", "retry", "duplicate", "upsert",
+        "ON CONFLICT", "at-least-once",
+        "reconcile", "plan", "diff",
+        "existing", "desired", "toInsert", "toUpdate", "toSoftDelete"
+      ],
+      "file_patterns": [
+        "*.processor.ts", "*reconcil*.ts",
+        "recompute-*.ts"
+      ],
+      "code_signatures": [
+        "SELECT existing → computeDesired → bulk INSERT/UPDATE/DELETE",
+        "planXxxReconcile() 純函式",
+        "if (existing) return existing（existing wins）",
+        "ON CONFLICT DO NOTHING / DO UPDATE"
+      ],
+      "trigger_context": [
+        "task 涉及 queue processor（at-least-once delivery 讓冪等性變必修）",
+        "task 涉及 reconcile pattern（SELECT → plan → apply diff）",
+        "task 涉及「existing wins」邏輯（已存在就不覆蓋）"
+      ],
+      "tools": ["Bull Queue processor", "PostgreSQL ON CONFLICT"],
+      "resources": ["Stripe Idempotency Keys"]
+    },
+    {
+      "id": "schema-evolution",
+      "name": "資料庫 Schema 演化",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "程式碼可以隨時部署，資料要活很久——如何安全地改 DB 結構？",
+      "knowledge_points": [
+        "Migration 是 schema 的 version control",
+        "向前相容 vs 向後相容",
+        "Soft Delete（@DeleteDateColumn）",
+        "JSONB 作為彈性 schema"
+      ],
+      "keywords": [
+        "migration", "schema", "ALTER TABLE",
+        "soft delete", "isDeleted", "DeleteDateColumn",
+        "JSONB", "migration:generate", "migration:run"
+      ],
+      "file_patterns": [
+        "migrations/", "*.migration.ts"
+      ],
+      "code_signatures": [
+        "migration:generate 產出遷移檔",
+        "isDeleted 欄位（soft delete）"
+      ],
+      "trigger_context": [
+        "task 涉及 DB migration",
+        "task 涉及驗證「無 migration 產出」（確認 schema 沒變）"
+      ],
+      "tools": ["TypeORM Migration", "@DeleteDateColumn", "PostgreSQL JSONB"],
+      "resources": ["TypeORM Migration 文件", "Martin Fowler Evolutionary Database Design"]
+    },
+    {
+      "id": "caching",
+      "name": "快取模式",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "如何用記憶體換計算或 I/O 的時間？",
+      "knowledge_points": [
+        "Cache-Aside / Write-Through / Write-Behind",
+        "快取 invalidation 是最難的",
+        "TTL 設計",
+        "Redis 資料結構"
+      ],
+      "keywords": ["cache", "redis", "TTL", "invalidate", "ioredis"],
+      "file_patterns": [],
+      "code_signatures": ["redis.get(", "redis.set(", "redis.del("],
+      "trigger_context": ["task 涉及 Redis 快取操作"],
+      "tools": ["Redis 6", "ioredis"],
+      "resources": ["Redis 官方文件"]
+    },
+    {
+      "id": "distributed-consistency",
+      "name": "分散式一致性",
+      "pillar": "狀態",
+      "depth": "進階",
+      "why": "多個節點同時讀寫，如何確保不衝突？",
+      "knowledge_points": [
+        "CAP 定理",
+        "分散式鎖用互斥保證同一時間只有一個操作",
+        "Optimistic vs Pessimistic locking"
+      ],
+      "keywords": ["lock", "Redlock", "advisory lock", "SELECT FOR UPDATE", "optimistic", "pessimistic", "version"],
+      "file_patterns": [],
+      "code_signatures": ["Redlock", "SELECT ... FOR UPDATE"],
+      "trigger_context": ["task 涉及分散式鎖或並發控制"],
+      "tools": ["Redlock", "PostgreSQL advisory lock"],
+      "resources": ["DDIA Ch.8-9"]
+    },
+    {
+      "id": "large-scale-data",
+      "name": "大規模資料處理",
+      "pillar": "狀態",
+      "depth": "進階",
+      "why": "當資料量超過單機 DB 能處理的範圍，怎麼辦？",
+      "knowledge_points": [
+        "讀寫分離（Read Replica）",
+        "Connection Pooling",
+        "Sharding",
+        "Map-Reduce / Spark"
+      ],
+      "keywords": ["spark", "dataproc", "sharding", "read replica", "connection pool"],
+      "file_patterns": ["dataproc/"],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及 Spark job 或 Dataproc"],
+      "tools": ["PostgreSQL 讀寫分離", "@google-cloud/dataproc"],
+      "resources": ["DDIA Ch.6", "Spark 官方文件"]
+    },
+    {
+      "id": "pagination",
+      "name": "Pagination 查詢策略",
+      "pillar": "狀態",
+      "depth": "核心",
+      "why": "列表資料太多，怎麼分批拿？",
+      "knowledge_points": [
+        "Offset-based：OFFSET N 要掃描並丟棄前 N 筆",
+        "Cursor-based：用 index seek 直接定位，效能穩定",
+        "EXPLAIN ANALYZE 可以直接看兩者差異"
+      ],
+      "keywords": ["pagination", "page", "limit", "offset", "cursor", "skip", "take"],
+      "file_patterns": [],
+      "code_signatures": [".skip(offset).take(limit)", "PageOptionsDto"],
+      "trigger_context": ["task 涉及分頁查詢"],
+      "tools": ["PostgreSQL", "TypeORM QueryBuilder"],
+      "resources": ["Use The Index Luke — Pagination"]
+    },
+    {
+      "id": "containerization",
+      "name": "容器化 & 不可變部署",
+      "pillar": "基礎設施",
+      "depth": "核心",
+      "why": "為什麼「在我電腦上可以跑」不是好的答案？",
+      "knowledge_points": [
+        "容器化：把應用程式和環境打包在一起",
+        "不可變基礎設施：不修改正在跑的 container",
+        "Image Layer 快取機制",
+        "Multi-stage build"
+      ],
+      "keywords": ["docker", "container", "image", "Dockerfile", "docker-compose"],
+      "file_patterns": ["Dockerfile", "docker-compose*.yml"],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及 Docker 設定或 E2E 環境"],
+      "tools": ["Docker", "GKE"],
+      "resources": ["Docker 官方文件"]
+    },
+    {
+      "id": "container-orchestration",
+      "name": "容器編排 & 服務抽象",
+      "pillar": "基礎設施",
+      "depth": "核心",
+      "why": "幾十個 container 如何自動化地運行、擴展、恢復？",
+      "knowledge_points": [
+        "K8s 三核心：Pod、Deployment、Service",
+        "ConfigMap / Secret 把設定和程式碼分離",
+        "Liveness / Readiness Health Check"
+      ],
+      "keywords": ["kubernetes", "k8s", "pod", "deployment", "service", "configmap", "secret", "HPA"],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及 K8s 設定"],
+      "tools": ["GKE", "K8s"],
+      "resources": ["Kubernetes 官方文件"]
+    },
+    {
+      "id": "ci-cd",
+      "name": "持續交付思維",
+      "pillar": "基礎設施",
+      "depth": "核心",
+      "why": "如何讓程式碼從 commit 到上線的過程自動化、可重複、且安全？",
+      "knowledge_points": [
+        "CI：每次 commit 自動跑測試",
+        "CD：每次通過 CI 就產出可部署的 artifact",
+        "Pipeline 原則：fail fast、平行執行、環境隔離",
+        "4 組平行 Jest 測試"
+      ],
+      "keywords": [
+        "CI", "CD", "pipeline", "gitlab-ci",
+        "jest-group", "parallel", "stage",
+        "build", "deploy"
+      ],
+      "file_patterns": [
+        ".gitlab-ci.yml", "test/jest-group*.json"
+      ],
+      "code_signatures": [
+        "jest-group*.json 設定",
+        "maxWorkers 設定"
+      ],
+      "trigger_context": [
+        "task 涉及 jest-group 設定更新",
+        "task 涉及 CI pipeline 設定"
+      ],
+      "tools": ["GitLab CI/CD", "4 組平行 Jest 測試"],
+      "resources": ["GitLab CI/CD 文件"]
+    },
+    {
+      "id": "config-secrets",
+      "name": "設定 & 機密管理",
+      "pillar": "基礎設施",
+      "depth": "核心",
+      "why": "為什麼密碼不能寫在程式碼裡？",
+      "knowledge_points": [
+        "12-Factor App 第三條：設定存在環境變數",
+        "K8s Secret vs ConfigMap",
+        "最小權限原則"
+      ],
+      "keywords": ["env", ".env", "secret", "config", "ConfigModule", "process.env"],
+      "file_patterns": ["config/", ".env*"],
+      "code_signatures": ["ConfigModule.forRoot(", "process.env."],
+      "trigger_context": ["task 涉及環境變數或 secret 設定"],
+      "tools": ["GCP Secret Manager", "K8s Secret", ".env"],
+      "resources": ["12factor.net"]
+    },
+    {
+      "id": "performance-testing",
+      "name": "效能驗證 & 容量規劃",
+      "pillar": "基礎設施",
+      "depth": "進階",
+      "why": "你的服務能承受多少流量？瓶頸在哪裡？",
+      "knowledge_points": [
+        "Load Testing：模擬真實流量",
+        "Stress Testing：超上限後如何降級",
+        "瓶頸分析：CPU/IO/DB bound"
+      ],
+      "keywords": ["k6", "load test", "benchmark", "profiling", "p95", "latency"],
+      "file_patterns": [],
+      "code_signatures": [],
+      "trigger_context": ["task 涉及效能測試或 benchmark"],
+      "tools": ["k6", "PostgreSQL EXPLAIN ANALYZE", "clinic.js"],
+      "resources": ["k6 官方文件"]
+    }
+  ]
+}
