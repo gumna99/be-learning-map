@@ -1,14 +1,17 @@
 ---
-name: be-learning-map
+name: be-learning
+invoke: user
 description: |
-  Cross-reference BE knowledge roadmap against speckit tasks to identify learning opportunities.
-  Use when: learning what BE concepts a feature involves, getting concept explanations with real codebase examples,
-  self-testing understanding, or calibrating matching accuracy after implementation.
-  Five sub-commands: map, explain, quiz, calibrate, progress.
-  Scope: Backend repos only (cream, tiramisu, cupcake, madeleine, puff, etc.). Not designed for frontend repos (souffle, pudding).
+  BE engineer learning companion. Five sub-commands:
+  /be-learning map — predict which concepts a feature involves
+  /be-learning explain {id} — teach a concept with real codebase examples
+  /be-learning quiz {id} — self-test understanding
+  /be-learning calibrate — compare predictions vs actual code
+  /be-learning progress — view learning progress and mark concepts as learned
+  Scope: Backend repos only (cream, tiramisu, cupcake, madeleine, puff, etc.).
 ---
 
-# BE Learning Map
+# BE Learning
 
 Identify which backend engineering concepts each feature involves, teach them using real codebase examples, and improve matching accuracy over time.
 
@@ -28,11 +31,11 @@ Identify which backend engineering concepts each feature involves, teach them us
 
 | Command | Purpose | When to use |
 |---------|---------|-------------|
-| `/be-learn map` | Predict which BE concepts a feature involves | After `/speckit.tasks`, before implementation |
-| `/be-learn explain {concept-id}` | Teach a concept using real codebase examples | During or after implementation |
-| `/be-learn quiz {concept-id}` | Self-test understanding with codebase questions | After reading an explanation |
-| `/be-learn calibrate` | Compare predictions vs actual code, improve matching | After implementation is complete |
-| `/be-learn progress` | View learning progress and mark concepts as learned | Anytime, especially after completing a feature |
+| `/be-learning map` | Predict which BE concepts a feature involves | After `/speckit.tasks`, before implementation |
+| `/be-learning explain {concept-id}` | Teach a concept using real codebase examples | During or after implementation |
+| `/be-learning quiz {concept-id}` | Self-test understanding with codebase questions | After reading an explanation |
+| `/be-learning calibrate` | Compare predictions vs actual code, improve matching | After implementation is complete |
+| `/be-learning progress` | View learning progress and mark concepts as learned | Anytime, especially after completing a feature |
 
 ---
 
@@ -108,14 +111,14 @@ LOW
 ================================================================
 Total: {N} concepts matched ({H} high, {M} medium, {L} low)
 
-Run `/be-learn explain {concept-id}` for deep-dive on any concept.
+Run `/be-learning explain {concept-id}` for deep-dive on any concept.
 
 Cross-service notice (if service-communication is HIGH):
   This feature involves cross-service communication ({reasons}).
-  Consider running `/be-learn map` in the other repo(s) involved.
+  Consider running `/be-learning map` in the other repo(s) involved.
 ```
 
-**Cross-service notice rule**: When `service-communication` is matched at HIGH confidence, append a notice block at the end of the terminal report. Extract the affected services from plan.md or tasks.md (e.g., "cupcake writes → madeleine reads via Redis") and remind the user to run `/be-learn map` in the other repo(s). This notice is omitted when `service-communication` is not HIGH.
+**Cross-service notice rule**: When `service-communication` is matched at HIGH confidence, append a notice block at the end of the terminal report. Extract the affected services from plan.md or tasks.md (e.g., "cupcake writes → madeleine reads via Redis") and remind the user to run `/be-learning map` in the other repo(s). This notice is omitted when `service-communication` is not HIGH.
 
 **Step 4 — Save predictions**
 
@@ -467,18 +470,18 @@ Step 2: Architect sequence + API contracts       [mint-tea]
 Step 3: specify init . --ai claude --force       [Code Repo]
 Step 4: /speckit.plan    → plan.md               [Code Repo]
 Step 5: /speckit.tasks   → tasks.md              [Code Repo]
-        /be-learn map    → be-learning-map.json  ← HERE
-        /be-learn explain X → deep-dive          ← HERE
+        /be-learning map    → be-learning-map.json  ← HERE
+        /be-learning explain X → deep-dive          ← HERE
 Step 6: /speckit.implement                       [Code Repo]
-        /be-learn calibrate                      ← HERE (post-implementation)
-        /be-learn progress                       ← HERE (review & mark learned)
+        /be-learning calibrate                      ← HERE (post-implementation)
+        /be-learning progress                       ← HERE (review & mark learned)
 ```
 
 ### Multi-repo usage
 
 When a feature spans multiple repos (e.g., cream BFF + madeleine Domain + souffle MFE):
 
-- Each backend RD runs `/be-learn map` independently **in their own repo**
+- Each backend RD runs `/be-learning map` independently **in their own repo**
 - The same feature will produce **different** learning maps per repo — this is expected:
   - **BFF (cream)**: likely matches api-design, auth, request-lifecycle
   - **Domain (madeleine)**: likely matches transaction-acid, query-execution, design-patterns
@@ -490,7 +493,7 @@ When a feature spans multiple repos (e.g., cream BFF + madeleine Domain + souffl
 When PM updates an existing spec and provides `spec_update.diff`:
 
 - RD runs `/speckit.plan --context specs/{feature}/spec_update.diff` for incremental planning
-- `/be-learn map` detects `spec_update.diff` in the feature directory and switches to **incremental mode**:
+- `/be-learning map` detects `spec_update.diff` in the feature directory and switches to **incremental mode**:
   - Focuses on concepts introduced by the **change**, not the entire feature
   - Tags each concept as `"source": "new"` or `"source": "existing"` in the output
   - Only shows `new` concepts in the terminal report (existing ones are collapsed)
@@ -508,7 +511,7 @@ in the current feature's `specs/{feature}/` directory, show a brief learning hin
 of each task that matches a BE concept. Format:
 
 Learning hint: This task involves [concept name] — [one-sentence why from roadmap].
-Run `/be-learn explain {concept-id}` to learn more.
+Run `/be-learning explain {concept-id}` to learn more.
 
 Rules:
 - Only show for HIGH confidence matches (not medium/low)
