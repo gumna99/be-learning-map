@@ -108,7 +108,13 @@ LOW
 Total: {N} concepts matched ({H} high, {M} medium, {L} low)
 
 Run `/be-learn explain {concept-id}` for deep-dive on any concept.
+
+Cross-service notice (if service-communication is HIGH):
+  This feature involves cross-service communication ({reasons}).
+  Consider running `/be-learn map` in the other repo(s) involved.
 ```
+
+**Cross-service notice rule**: When `service-communication` is matched at HIGH confidence, append a notice block at the end of the terminal report. Extract the affected services from plan.md or tasks.md (e.g., "cupcake writes → madeleine reads via Redis") and remind the user to run `/be-learn map` in the other repo(s). This notice is omitted when `service-communication` is not HIGH.
 
 **Step 4 — Save predictions**
 
