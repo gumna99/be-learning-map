@@ -23,16 +23,21 @@ cp -r . ~/.claude/skills/be-learning-map
 | `/be-learn explain {concept-id}` | Teach a concept using real codebase examples |
 | `/be-learn quiz {concept-id}` | Self-test understanding with codebase questions |
 | `/be-learn calibrate` | Compare predictions vs actual code, improve matching |
+| `/be-learn progress` | View learning progress and mark concepts as learned |
 
 ## Workflow
 
 ```
-/speckit.plan          -> plan.md
-/speckit.tasks         -> tasks.md
-/be-learn map          -> be-learning-map.json (predictions)
-/be-learn explain X    -> deep-dive on any concept
-/speckit.implement     -> actual implementation
-/be-learn calibrate    -> post-implementation accuracy feedback
+Step 1: PM spec.md                              [Spec-Hub]
+Step 2: Architect sequence + API contracts       [mint-tea]
+Step 3: specify init . --ai claude --force       [Code Repo]
+Step 4: /speckit.plan    -> plan.md              [Code Repo]
+Step 5: /speckit.tasks   -> tasks.md             [Code Repo]
+        /be-learn map    -> be-learning-map.json (predictions + auto-record encounters)
+        /be-learn explain X -> deep-dive         (auto-record encounter)
+Step 6: /speckit.implement                       [Code Repo]
+        /be-learn calibrate                      (post-implementation accuracy)
+        /be-learn progress                       (review & mark learned)
 ```
 
 ## Optional: Implement-time prompts
@@ -58,15 +63,17 @@ Rules:
 
 ```
 be-learning-map/
-├── SKILL.md                       # Skill definition (4 sub-commands)
+├── SKILL.md                       # Skill definition (5 sub-commands)
 ├── references/
-│   └── be-roadmap.json            # 26 BE concepts with matching rules
+│   ├── be-roadmap.json            # 41 BE concepts with matching rules
+│   └── progress.json              # Personal learning progress (auto-created)
+├── docs/superpowers/specs/        # Design documents
 └── README.md
 ```
 
 ## Roadmap JSON
 
-`references/be-roadmap.json` contains 26 backend engineering concepts across 5 pillars:
+`references/be-roadmap.json` contains 41 backend engineering concepts across 5 pillars:
 
 - **基本功** (7): Clean Code, SOLID, Design Patterns, Testing, Version Control, Type System, Programming Paradigms, DI
 - **計算** (4): Execution Model, Memory Model, Algorithm Complexity, Numerical Precision
